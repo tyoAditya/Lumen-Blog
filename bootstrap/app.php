@@ -2,6 +2,9 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+require(__DIR__.'/../dice.php');
+require(__DIR__.'/../instrumentation.php');
+
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
 ))->bootstrap();
@@ -26,6 +29,17 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades();
 
 $app->withEloquent();
+
+use OpenTelemetry\API\Globals;
+
+// $tracerProvider = Globals::tracerProvider();
+// $tracer = $tracerProvider->getTracer(
+//   'dice-server',
+//   '0.1.0',
+//   'https://opentelemetry.io/schemas/1.24.0'
+// );
+
+
 
 /*
 |--------------------------------------------------------------------------

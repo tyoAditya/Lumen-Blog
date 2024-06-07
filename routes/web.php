@@ -1,5 +1,11 @@
 <?php
 
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Log\LogLevel;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -15,6 +21,28 @@
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
+});
+
+$dice = new Dice();
+
+
+$router->get('/rolldice', function (Request $request, Response $response) use ($dice) {
+    $logger = new Logger('dice-server');
+    $logger->pushHandler(new StreamHandler('php://stdout', Logger::INFO));
+    
+    $params = $request->getQueryParams();
+    if(isset($params['rolls'])) {
+        $result = $dice->roll($params['rolls']);
+        if (isset($params['player'])) {
+            $logger->info("A player is rolling the dice.", ['player' => $params['player'], 'result' => $result]);
+        } else {
+            $logger->info("Anonymous player is rolling the dice.", ['result' => $result]);
+        }
+        $response->getBody()->write(json_encode($result));
+    } else {
+        $response->withStatus(400)->getBody()->write("Please enter a number of rolls");
+    }
+    return $response;
 });
 
 // API
